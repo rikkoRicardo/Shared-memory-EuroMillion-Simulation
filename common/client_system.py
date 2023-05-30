@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from threading import Thread, Lock as threading_lock
-import time, random
+import time
 from .client import Client
 from . import utils
 
@@ -14,16 +14,14 @@ backup_file_path = ""
 def create_client(client_shared_queue):
   global client_database_backup
   #5 numbers, 2 stars
-  numbers = [random.sample(range(1, 51), 5), random.sample(range(1, 12), 2)]
-
+  numbers = utils.get_ticket_structure()
+  #create delay for simulation
   with threading_lock():
     #generate new client entry
     curr_client = Client(numbers)
     #append to backup list
     client_database_backup.append(curr_client.data_as_arr)
     client_shared_queue.put(curr_client.ticket_data)
-    #create delay for simulation
-    time.sleep(0.1)
     #notify new client entry
     print(f"NEW ENTRY - ID: {str(curr_client.ticket_id)} saved successfully!")
 
@@ -43,6 +41,7 @@ def create_list(shared_client_queue, client_amount, save_file_path):
                args=(shared_client_queue, ),
                name="cl_entry_thread")
     threads.append(x)
+    time.sleep(0.2)
     x.start()
 
   #pause main thread waiting for entries
@@ -53,7 +52,31 @@ def create_list(shared_client_queue, client_amount, save_file_path):
   utils.save_to_file(str(client_database_backup), save_file_path)
 
 
-def find_client_by_ticket_num(ticket_number, file):
+def define_winner(shared_queue):
+  time.sleep(0.5)
+  print("DRAWING WINNER", end="")
+  time.sleep(0.5)
+  
+  winners = []
+  while not shared_queue.empty():
+    winners.append(shared_queue.get())
+
+  if len(winners) > 0:
+    for ticket_number_data in winners:
+      winner_id = find_client_by_ticket_num(ticket_number_data[0])
+      if ticket_number_data[1]:
+        print(
+          f"\n\n[JACKPOT] The client with ticket ID {str(winner_id)} won the EuroMillion! \n"
+        )
+      else:
+        print(
+          f"\n\nThe client with ticket ID {str(winner_id)} won the EuroMillion!\n "
+        )
+  else:
+    print("\n\nNo one won the EuroMillion this time, keep gambling!")
+
+
+def find_client_by_ticket_num(ticket_number):
   #get backup components
   global client_database_backup, backup_file_path
 
