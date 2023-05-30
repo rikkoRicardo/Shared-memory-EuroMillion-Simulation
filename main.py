@@ -22,7 +22,7 @@ processes = []
 
 if __name__ == "__main__":
   print(logo)
-  pass
+
   #Load past game if existent
   try:
     utils.load_numbers_from_file(
