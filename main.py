@@ -42,6 +42,7 @@ if __name__ == "__main__":
     list_system_process.join()
 
   finally:
+    pass
     #start server process
     print("\nServer started!")
 
