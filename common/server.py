@@ -4,8 +4,6 @@ from dataclasses import dataclass
 from . import utils
 import time
 
-import numpy as np
-
 
 @dataclass
 class Server:
@@ -23,33 +21,31 @@ class Server:
     with self.lock:
       self.clients.append(list)
 
+  #TO DO: THIS IS THE LAST THING, JUST CHECK THEM PLEASE
   def check_results(self, shared_queue):
     JACKPOT = True
     with self.lock:
       for player_numbers in self.clients:
-        incoming_guess = np.array(player_numbers[0])
-        incoming_star_guess = np.array(player_numbers[1])
-        print(incoming_guess == self.results.numbers)
         #match player number
-        if incoming_guess == self.results.numbers:
+        #0 = 5 digits
+        #1 = 2 stars
+        if player_numbers[0] == self.results[0]:
           #check for jackpot by checking stars
-          if incoming_star_guess == self.results.stars:
+          if player_numbers[1] == self.results[1]:
             shared_queue.put([player_numbers, JACKPOT])
             return
+          shared_queue.put([player_numbers, not JACKPOT])
 
-        shared_queue.put([player_numbers, not JACKPOT])
-
-  def draw_numbers(self):
+  def draw_numbers(self, save_file_path):
     with self.draw_condition:
       if not self.results:
-        self.results = np.array(utils.get_ticket_structure())
-        self.results.stars = self.results[1]
-        self.results.numbers = self.results[0]
+        self.results = utils.get_ticket_structure()
+        utils.save_to_file(self.results, save_file_path)
         time.sleep(0.5)
         print(f"\nTICKET WINNER: {self.results}\n")
         self.results_event.set()  # Notify waiting clients
 
-  def run(self, shared_queue):
+  def run(self, shared_queue, save_file_path):
     threads = []
 
     while not shared_queue.empty():
@@ -61,7 +57,7 @@ class Server:
     for thread in threads:
       thread.join()
 
-    self.draw_numbers()
+    self.draw_numbers(save_file_path)
     self.results_event.wait()
 
     self.check_results(shared_queue)

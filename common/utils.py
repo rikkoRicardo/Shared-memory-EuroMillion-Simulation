@@ -11,17 +11,42 @@ def save_to_file(data, file_name):
 
 
 # Data Loaded in order -> client array, server result arr, winner array
-def load_old_game_state(client_array, server_result, winner_arr, file_name):
- 
+def load_old_game_state(file_name):
+
   if os.path.exists(file_name):
-    with open(file_name, "rb") as f:
-      client_array.append(pickle.load(f))
-      server_result.append(pickle.load(f))
-      winner_arr.append(pickle.load(f))
+    try:
+      with open(file_name, "rb") as f:
+        client_array = pickle.load(f)
+        server_result = pickle.load(f)
+        winner_arr = pickle.load(f)
+      display_old_game_data(client_array, server_result, winner_arr)
+
+    except EOFError:
+      print("log data corrupted, please delete it")
   else:
     raise FileNotFoundError
 
 
-def get_ticket_structure():
+def display_old_game_data(client_array, server_result, winners_arr):
+
+  print("Log file found, Loading last game state\n")
+
+  print("The available tickets are {client_array}")
   
-  return [random.sample(range(1, 51), 5), [random.sample(range(1, 12), 2)]]
+  print(
+    f"The EuroMillion result was the numbers {server_result[0]} and stars {server_result[1]}\n"
+  )
+
+  if winners_arr[0] != -1:
+    for winner in winners_arr:
+      print(f"{winner[0]} won with the ticket {winner[1]}\n")
+  else:
+    print("There was no winners!\n")
+
+  print(
+    "Please come back on Monday to have a chance to win the EuroMillion!!\n")
+
+
+def get_ticket_structure():
+  #5 numbers, 2 stars
+  return random.sample(range(1, 51), 5), random.sample(range(1, 12), 2)

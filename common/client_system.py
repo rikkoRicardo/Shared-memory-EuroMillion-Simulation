@@ -12,12 +12,11 @@ backup_file_path = ""
 
 #function to create and store a new client
 def create_client(client_shared_queue):
-  global client_database_backup
-  #5 numbers, 2 stars
-  numbers = utils.get_ticket_structure()
   #create delay for simulation
   with threading_lock():
     #generate new client entry
+    numbers = utils.get_ticket_structure()
+
     curr_client = Client(numbers)
     #append to backup list
     client_database_backup.append(curr_client.data_as_arr)
@@ -29,9 +28,8 @@ def create_client(client_shared_queue):
 #structure list to be sent to the server
 def create_list(shared_client_queue, client_amount, save_file_path):
   #declare backup components
-  global backup_file_path
-  backup_file_path = save_file_path
 
+  print()
   #create thread list
   threads = []
 
@@ -49,10 +47,10 @@ def create_list(shared_client_queue, client_amount, save_file_path):
     thread.join()
 
   #save to be able to recover the game later
-  utils.save_to_file(client_database_backup, save_file_path)
+  utils.save_to_file([client_database_backup], save_file_path)
 
 
-def define_winner(shared_queue):
+def define_winner(shared_queue, save_file_path):
   time.sleep(0.5)
   print("DRAWING WINNER", end="")
   time.sleep(0.5)
@@ -61,8 +59,8 @@ def define_winner(shared_queue):
   while not shared_queue.empty():
     winners.append(shared_queue.get())
 
-  utils.save_to_file(winners, backup_file_path)
-  
+  utils.save_to_file(winners if len(winners) else [-1], save_file_path)
+
   #if there is any winners
   if len(winners):
     #list the ticket id because numbers match
@@ -81,7 +79,6 @@ def define_winner(shared_queue):
 
 
 def find_client_by_ticket_num(ticket_number):
-  global client_database_backup
 
   if not client_database_backup:
     print("Error: Server backup file is empty!\n")
