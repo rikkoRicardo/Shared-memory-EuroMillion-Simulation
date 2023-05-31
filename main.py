@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import multiprocessing as mp
 
-import json
-
-from common import utils
+from common.utils import load_old_game_state
 from common import client_system
 from common.server import Server
+
+import sys
 
 logo = """
 
@@ -22,22 +22,34 @@ if __name__ == "__main__":
 
   #setup basic properties
   client_amount = 20
-  number_shared_lst = mp.Queue(maxsize=client_amount)
   log_file_name = "log"
-  processes = []
 
   try:
-    #load_from_file(client_array, server_result, winner_arr, file_name)
-    utils.load_numbers_from_file(
-      log_file_name,
-      number_shared_lst,
-    )
+    clients = []
+    server_result = []
+    winners = [] 
+    
+    load_old_game_state(clients, server_result, winners, log_file_name)
+    
+    print("Log file found, Loading last game state")
+    time.sleep(2
+              )
+    print(f"The EuroMillion result was {server_result}")
+    
+    if winners:
+      for winner in winners:
+        print(f"{(ticket_id:=winner[0])} won with the ticket {(ticket_number:=winner[1])} ")
+    else:
+        print("There was no winners")
 
-    print("Client database loaded successfully!")
-
+    print("Please come back on the next round of EuroMillion!!")
+    
   # else create new game
   except FileNotFoundError:
-
+    
+    number_shared_lst = mp.Queue(maxsize=client_amount)
+    processes = []
+    
     #start by declaring client process
     list_system_process = mp.Process(target=client_system.create_list,
                                      args=(number_shared_lst, client_amount,

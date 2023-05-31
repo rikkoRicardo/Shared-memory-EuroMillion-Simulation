@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-from threading import Thread, Lock as threading_lock
 import time
-from .client import Client
 from . import utils
+from .client import Client
+from threading import Thread, Lock as threading_lock
 
 #create backup components
 client_database_backup = []
@@ -61,13 +61,13 @@ def define_winner(shared_queue):
   while not shared_queue.empty():
     winners.append(shared_queue.get())
 
+  utils.save_to_file(winners, backup_file_path)
+  
   #if there is any winners
   if len(winners):
     #list the ticket id because numbers match
     for ticket_number_data in winners:
       winner_id = find_client_by_ticket_num(ticket_number_data[0])
-
-      utils.save_to_file(winner_id, backup_file_path)
 
       congrats_message = f"\n\nThe client with ticket ID {str(winner_id)} and numbers {ticket_number_data} won the EuroMillion "
 
