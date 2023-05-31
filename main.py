@@ -5,8 +5,6 @@ from common.utils import load_old_game_state
 from common import client_system
 from common.server import Server
 
-import sys
-
 logo = """
 
 ,------.                      ,--.   ,--.,--.,--.,--.,--.              
@@ -25,15 +23,19 @@ if __name__ == "__main__":
   log_file_name = "log"
 
   try:
+    #placeholder variables
     clients = []
     server_result = []
     winners = [] 
     
     load_old_game_state(clients, server_result, winners, log_file_name)
+
+    #print game stats
     
     print("Log file found, Loading last game state")
-    time.sleep(2
-              )
+    
+    time.sleep(2)
+    
     print(f"The EuroMillion result was {server_result}")
     
     if winners:
