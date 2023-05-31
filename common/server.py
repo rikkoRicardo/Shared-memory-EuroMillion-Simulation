@@ -21,34 +21,31 @@ class Server:
     with self.lock:
       self.clients.append(list)
 
+  #TO DO: THIS IS THE LAST THING, JUST CHECK THEM PLEASE
   def check_results(self, shared_queue):
     JACKPOT = True
     with self.lock:
       for player_numbers in self.clients:
-        print(player_numbers)
-
         #match player number
-        if player_numbers[0] is self.results[0]:
+        #0 = 5 digits
+        #1 = 2 stars
+        if player_numbers[0] == self.results[0]:
           #check for jackpot by checking stars
-          if player_numbers[1] is self.results[1]:
-
+          if player_numbers[1] == self.results[1]:
+            shared_queue.put([player_numbers, JACKPOT])
             return
-
           shared_queue.put([player_numbers, not JACKPOT])
 
-      shared_queue.put([player_numbers, JACKPOT])
-
-   
-
-  def draw_numbers(self):
+  def draw_numbers(self, save_file_path):
     with self.draw_condition:
       if not self.results:
         self.results = utils.get_ticket_structure()
+        utils.save_to_file(self.results, save_file_path)
         time.sleep(0.5)
         print(f"\nTICKET WINNER: {self.results}\n")
         self.results_event.set()  # Notify waiting clients
 
-  def run(self, shared_queue):
+  def run(self, shared_queue, save_file_path):
     threads = []
 
     while not shared_queue.empty():
@@ -60,13 +57,7 @@ class Server:
     for thread in threads:
       thread.join()
 
-    self.draw_numbers()
+    self.draw_numbers(save_file_path)
     self.results_event.wait()
 
     self.check_results(shared_queue)
-
-
-#massive to do
-"""
-The idea is when the program starts, the server will wait for client bets for a number of x seconds, then it will grab the client guesses from the shared memory area, then another process is started to create a winning sample and check for winners
-"""

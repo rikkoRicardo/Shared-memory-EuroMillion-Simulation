@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import multiprocessing as mp
 
-from common import utils
+from common.utils import load_old_game_state
 from common import client_system
 from common.server import Server
 
@@ -15,46 +15,50 @@ logo = """
                                                           Ricardo - 2023 
 """
 
-client_amount = 20
-number_shared_lst = mp.Queue(maxsize=client_amount)
-log_file_name = "log"
-processes = []
-
 if __name__ == "__main__":
   print(logo)
 
-  #Load past game if existent
+  #setup basic properties
+  client_amount = 5
+  log_file_name = "log"
+
   try:
-    #secalhar faz um array local de clientes para backup
-    utils.load_numbers_from_file(
-      log_file_name,
-      number_shared_lst,
-    )
+    load_old_game_state(log_file_name)
 
-    print("Client database loaded successfully!")
-
-  # else create a new one
   except FileNotFoundError:
+    # else create new game
+
+    number_shared_lst = mp.Queue(maxsize=client_amount)
+    processes = []
+
+    #start by declaring client process
     list_system_process = mp.Process(target=client_system.create_list,
                                      args=(number_shared_lst, client_amount,
                                            log_file_name))
+
     processes.append(list_system_process)
+
+    #declare and start server process
+    server = Server()
+
+    server_process = mp.Process(target=server.run,
+                                args=(number_shared_lst, log_file_name))
+    processes.append(server_process)
+
+    #start client process and wait
     list_system_process.start()
     list_system_process.join()
 
-  finally:
-    #start server process
-    server = Server()
-    server.run(number_shared_lst)
-
-    server_process = mp.Process(target=server.run, args=(number_shared_lst, ))
-    processes.append(server_process)
+    #start server process and wait
     server_process.start()
     server_process.join()
 
-    client_system.define_winner(number_shared_lst)
+    client_system.define_winner(
+      number_shared_lst,
+      log_file_name,
+    )
 
-  #terminate process and free process handle
-  for process in processes:
-    process.terminate()
-    process.close()
+    #terminate process and free process handle
+    for process in processes:
+      process.terminate()
+      process.close()
