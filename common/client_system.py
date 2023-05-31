@@ -56,39 +56,42 @@ def define_winner(shared_queue):
   time.sleep(0.5)
   print("DRAWING WINNER", end="")
   time.sleep(0.5)
-  
+
   winners = []
   while not shared_queue.empty():
     winners.append(shared_queue.get())
 
-  if len(winners) > 0:
+  #if there is any winners
+  if len(winners):
+    #list the ticket id because numbers match
     for ticket_number_data in winners:
       winner_id = find_client_by_ticket_num(ticket_number_data[0])
+
+      utils.save_to_file(winner_id, backup_file_path)
+
+      congrats_message = f"\n\nThe client with ticket ID {str(winner_id)} and numbers {ticket_number_data} won the EuroMillion "
+
+      #check for jackpot
       if ticket_number_data[1]:
-        print(
-          f"\n\n[JACKPOT] The client with ticket ID {str(winner_id)} won the EuroMillion! \n"
-        )
+        print(congrats_message.join(" AND GOT THE JACKPOT!"))
       else:
-        print(
-          f"\n\nThe client with ticket ID {str(winner_id)} won the EuroMillion!\n "
-        )
+        print(congrats_message)
   else:
-    print("\n\nNo one won the EuroMillion this time, keep gambling!")
+    print("\n\nNo one won the EuroMillion this time, keep gambling!\n")
 
 
 def find_client_by_ticket_num(ticket_number):
-  #get backup components
-  global client_database_backup, backup_file_path
+  global client_database_backup
 
-  #check for a valid list
   if not client_database_backup:
-    utils.load_full_from_file(backup_file_path)
+    print("Error: Server backup file is empty!\n")
 
   #search for a valid match
   if ticket_number in client_database_backup:
     index = client_database_backup.index(ticket_number)
-    #return ticket id
-    return client_database_backup[index][0]
+    #return [self.ticket_id, self.ticket_data]
+    return client_database_backup[index]
 
+  print(f"Couldnt find anyone with ticket number {ticket_number}!\n")
   #else return not valid
   return -1
