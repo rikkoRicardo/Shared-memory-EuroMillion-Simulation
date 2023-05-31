@@ -1,31 +1,20 @@
 #!/usr/bin/env python3
 import random
+import pickle
 
 
-def load_numbers_from_file(file_path, queue):
-
-  #open file and get text
-  with open(file_path, "r") as f:
-    recieved_text = eval(f.read())
-
-    for each_entry in recieved_text:
-      queue.put(each_entry[0], block=False)
-
-
-def load_full_from_file(file_path, queue):
-
-  #open file and get text
-  with open(file_path, "r") as f:
-    recieved_text = eval(f.read())
-
-    for each_entry in recieved_text:
-      queue.put(each_entry, block=False)
-
-
+# Data Saved during execution -> client array, server result arr, winner array
 def save_to_file(data, file_name):
-  file = open(file_name, "w")
-  file.write(data)
-  file.close()
+  with open(file_name, "ab+") as f:
+    pickle.dump(data, f)
+
+
+# Data Loaded in order -> client array, server result arr, winner array
+def load_from_file(client_array, server_result, winner_arr, file_name):
+  with open(file_name, "ab+") as f:
+    client_array.append(pickle.load(f))
+    server_result.append(pickle.load(f))
+    winner_arr.append(pickle.load(f))
 
 
 def get_ticket_structure():

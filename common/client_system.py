@@ -49,7 +49,7 @@ def create_list(shared_client_queue, client_amount, save_file_path):
     thread.join()
 
   #save to be able to recover the game later
-  utils.save_to_file(str(client_database_backup), save_file_path)
+  utils.save_to_file(client_database_backup, save_file_path)
 
 
 def define_winner(shared_queue):
