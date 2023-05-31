@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import random
 
+
 def load_numbers_from_file(file_path, queue):
 
   #open file and get text
