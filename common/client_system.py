@@ -22,7 +22,8 @@ def create_client(client_shared_queue):
     client_database_backup.append(curr_client.data_as_arr)
     client_shared_queue.put(curr_client.ticket_data)
     #notify new client entry
-    print(f"NEW ENTRY - ID: {str(curr_client.ticket_id)} saved successfully!")
+    print(
+      f"NEW ENTRY - ID: {str(curr_client.ticket_id)} saved successfully!\n")
 
 
 #structure list to be sent to the server
@@ -39,7 +40,6 @@ def create_list(shared_client_queue, client_amount, save_file_path):
                args=(shared_client_queue, ),
                name="cl_entry_thread")
     threads.append(x)
-    time.sleep(0.2)
     x.start()
 
   #pause main thread waiting for entries

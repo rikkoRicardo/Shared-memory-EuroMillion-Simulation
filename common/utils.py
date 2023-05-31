@@ -31,10 +31,12 @@ def display_old_game_data(client_array, server_result, winners_arr):
 
   print("Log file found, Loading last game state\n")
 
-  print("The available tickets are {client_array}")
+  print("The available tickets are:")
+  for client in client_array[0]:
+    print(f"ID: {client[0]}\nNumber:{client[1]}")
   
   print(
-    f"The EuroMillion result was the numbers {server_result[0]} and stars {server_result[1]}\n"
+    f"\nThe EuroMillion result was the numbers {server_result[0]} and stars {server_result[1]}\n"
   )
 
   if winners_arr[0] != -1:

@@ -19,7 +19,7 @@ if __name__ == "__main__":
   print(logo)
 
   #setup basic properties
-  client_amount = 1
+  client_amount = 5
   log_file_name = "log"
 
   try:
