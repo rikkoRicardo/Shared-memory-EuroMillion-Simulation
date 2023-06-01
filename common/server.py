@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 import threading
-from dataclasses import dataclass
 from . import utils
 import time
 
 
-@dataclass
 class Server:
-  _client_numbers: int
-  _results: int
-
   def __init__(self):
     self.clients = []
     self.results = []
