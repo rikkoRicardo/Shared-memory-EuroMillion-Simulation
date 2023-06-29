@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 import threading
+from dataclasses import dataclass
 from . import utils
 import time
 
 
+@dataclass
 class Server:
+
   def __init__(self):
     self.clients = []
     self.results = []
@@ -43,9 +46,9 @@ class Server:
   def run(self, shared_queue, save_file_path):
     threads = []
 
-    while not shared_queue.empty():
+    while len(shared_queue):
       thread = threading.Thread(target=self.accept_player,
-                                args=(shared_queue.get(), ))
+                                args=(shared_queue.pop(), ))
       threads.append(thread)
       thread.start()
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import multiprocessing as mp
+import multiprocessing
 
 from common.utils import load_old_game_state
 from common import client_system
@@ -19,7 +19,7 @@ if __name__ == "__main__":
   print(logo)
 
   #setup basic properties
-  client_amount = 5
+  client_amount = 20
   log_file_name = "log"
 
   try:
@@ -27,21 +27,20 @@ if __name__ == "__main__":
 
   except FileNotFoundError:
     # else create new game
-
-    number_shared_lst = mp.Queue(maxsize=client_amount)
+    manager = multiprocessing.Manager()
+    number_shared_lst = manager.list()
     processes = []
 
     #start by declaring client process
-    list_system_process = mp.Process(target=client_system.create_list,
-                                     args=(number_shared_lst, client_amount,
-                                           log_file_name))
+    list_system_process = multiprocessing.Process(target=client_system.create_list,
+                                     args=(number_shared_lst,client_amount,log_file_name,))
 
     processes.append(list_system_process)
 
     #declare and start server process
     server = Server()
 
-    server_process = mp.Process(target=server.run,
+    server_process = multiprocessing.Process(target=server.run,
                                 args=(number_shared_lst, log_file_name))
     processes.append(server_process)
 

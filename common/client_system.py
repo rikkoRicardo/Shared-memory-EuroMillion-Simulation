@@ -7,8 +7,6 @@ from threading import Thread, Lock as threading_lock
 
 #create backup components
 client_database_backup = []
-backup_file_path = ""
-
 
 #function to create and store a new client
 def create_client(client_shared_queue):
@@ -20,7 +18,7 @@ def create_client(client_shared_queue):
     curr_client = Client(numbers)
     #append to backup list
     client_database_backup.append(curr_client.data_as_arr)
-    client_shared_queue.put(curr_client.ticket_data)
+    client_shared_queue.append(curr_client.ticket_data)
     #notify new client entry
     print(
       f"NEW ENTRY - ID: {str(curr_client.ticket_id)} saved successfully!\n")
@@ -28,9 +26,6 @@ def create_client(client_shared_queue):
 
 #structure list to be sent to the server
 def create_list(shared_client_queue, client_amount, save_file_path):
-  #declare backup components
-
-  print()
   #create thread list
   threads = []
 
@@ -56,8 +51,8 @@ def define_winner(shared_queue, save_file_path):
   time.sleep(0.5)
 
   winners = []
-  while not shared_queue.empty():
-    winners.append(shared_queue.get())
+  while len(shared_queue):
+    winners.append(shared_queue.pop())
 
   utils.save_to_file(winners if len(winners) else [-1], save_file_path)
 
